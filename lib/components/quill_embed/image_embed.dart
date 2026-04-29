@@ -18,7 +18,11 @@ class ImageBlockEmbed extends BlockEmbed {
 class ImageEmbedBuilder extends EmbedBuilder {
   final bool isEdit;
 
-  ImageEmbedBuilder({required this.isEdit});
+  /// All image names in the current diary, used for swiping between images
+  /// in the preview page. Pass empty list to only show the current image.
+  final List<String> allImageNames;
+
+  ImageEmbedBuilder({required this.isEdit, this.allImageNames = const []});
 
   @override
   String get key => ImageBlockEmbed.embedType;
@@ -43,20 +47,25 @@ class ImageEmbedBuilder extends EmbedBuilder {
       padding: const EdgeInsets.all(8.0),
       onTap: () {
         if (!isEdit) {
+          final paths = allImageNames.isEmpty
+              ? [imagePath]
+              : allImageNames
+                  .map((name) => FileUtil.getRealPath('image', name))
+                  .toList();
+          final index = allImageNames.isEmpty
+              ? 0
+              : allImageNames
+                  .indexOf(imageEmbed.name)
+                  .clamp(0, allImageNames.length - 1);
           showImageView(
             context,
-            [imagePath],
-            0,
+            paths,
+            index,
             heroTagPrefix: imageEmbed.name,
           );
         }
       },
     );
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 300),
-        child: image,
-      ),
-    );
+    return Center(child: image);
   }
 }

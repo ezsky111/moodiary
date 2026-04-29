@@ -94,7 +94,11 @@ class _DiaryRenderState extends State<DiaryRender> {
         configs: [
           ImgConfig(
             builder: (src, _) {
-              return MarkdownImageEmbed(isEdit: false, imageName: src);
+              return MarkdownImageEmbed(
+                isEdit: false,
+                imageName: src,
+                allImageNames: diary.imageName,
+              );
             },
           ),
           brightness == Brightness.dark
@@ -125,7 +129,7 @@ class _DiaryRenderState extends State<DiaryRender> {
               customColorScheme: colorScheme,
             ),
             embedBuilders: [
-              ImageEmbedBuilder(isEdit: false),
+              ImageEmbedBuilder(isEdit: false, allImageNames: diary.imageName),
               VideoEmbedBuilder(isEdit: false),
               AudioEmbedBuilder(isEdit: false),
               TextIndentEmbedBuilder(isEdit: false),

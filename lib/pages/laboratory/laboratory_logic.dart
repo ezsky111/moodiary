@@ -11,9 +11,17 @@ import 'package:moodiary/utils/notice_util.dart';
 import 'package:share_plus/share_plus.dart';
 
 class LaboratoryLogic extends GetxController {
-  Future<bool> setTencentID({required String id}) async {
+  Future<bool> setAiProvider(String provider) async {
     try {
-      await PrefUtil.setValue<String>('tencentId', id);
+      await PrefUtil.setValue<String>('aiProvider', provider);
+      // Auto-set default base URL when provider changes
+      final currentBaseUrl = PrefUtil.getValue<String>('aiBaseUrl');
+      if (currentBaseUrl == null || currentBaseUrl.isEmpty) {
+        final defaultUrl = provider == 'anthropic'
+            ? 'https://api.anthropic.com/v1'
+            : 'https://api.openai.com/v1';
+        await PrefUtil.setValue<String>('aiBaseUrl', defaultUrl);
+      }
       return true;
     } catch (e) {
       return false;
@@ -22,9 +30,22 @@ class LaboratoryLogic extends GetxController {
     }
   }
 
-  Future<bool> setTencentKey({required String key}) async {
+  Future<bool> setAiBaseUrl(String url) async {
     try {
-      await PrefUtil.setValue<String>('tencentKey', key);
+      // Strip trailing slash for consistency
+      final cleanUrl = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+      await PrefUtil.setValue<String>('aiBaseUrl', cleanUrl);
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      update();
+    }
+  }
+
+  Future<bool> setAiKey(String key) async {
+    try {
+      await PrefUtil.setValue<String>('aiKey', key);
       return true;
     } catch (e) {
       return false;

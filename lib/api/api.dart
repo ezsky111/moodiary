@@ -15,51 +15,68 @@ import 'package:moodiary/l10n/l10n.dart';
 import 'package:moodiary/persistence/pref.dart';
 import 'package:moodiary/utils/http_util.dart';
 import 'package:moodiary/utils/notice_util.dart';
-import 'package:moodiary/utils/signature_util.dart';
 
 class Api {
-  static Future<Stream<String>?> getHunYuan(
-    String id,
-    String key,
+  /// Chat with an OpenAI-compatible API
+  static Future<Stream<String>?> chatWithOpenAI(
+    String baseUrl,
+    String apiKey,
+    String model,
     List<Message> messages,
-    int model,
   ) async {
-    //获取时间戳
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final hunyuanModel = switch (model) {
-      0 => 'hunyuan-lite',
-      1 => 'hunyuan-standard',
-      2 => 'hunyuan-pro',
-      3 => 'hunyuan-turbo',
-      _ => 'hunyuan-lite',
+    final headers = {
+      'Authorization': 'Bearer $apiKey',
+      'Content-Type': 'application/json',
     };
-    //请求正文
     final body = {
-      'Model': hunyuanModel,
-      'Messages': messages.map((value) => value.toJson()).toList(),
-      'Stream': true,
+      'model': model,
+      'messages': messages.map((m) => m.toJson()).toList(),
+      'stream': true,
     };
+    final url =
+        baseUrl.endsWith('/')
+            ? '${baseUrl}chat/completions'
+            : '$baseUrl/chat/completions';
+    return await HttpUtil().postStream(url, header: headers, data: body);
+  }
 
-    //获取签名
-    final authorization = SignatureUtil.generateSignature(
-      id,
-      key,
-      timestamp,
-      body,
-    );
-    //构造请求头
-    final header = PublicHeader(
-      action: 'ChatCompletions',
-      timestamp: timestamp ~/ 1000,
-      version: '2023-09-01',
-      authorization: authorization,
-    );
-    //发起请求
-    return await HttpUtil().postStream(
-      'https://hunyuan.tencentcloudapi.com',
-      header: header.toJson(),
-      data: body,
-    );
+  /// Chat with an Anthropic-compatible API
+  static Future<Stream<String>?> chatWithAnthropic(
+    String baseUrl,
+    String apiKey,
+    String model,
+    List<Message> messages,
+  ) async {
+    final headers = {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+    };
+    // Anthropic uses a different message format:
+    // system prompt goes in a separate "system" field
+    String? systemPrompt;
+    final apiMessages = <Map<String, dynamic>>[];
+    for (final msg in messages) {
+      if (msg.role == 'system') {
+        systemPrompt = msg.content;
+      } else {
+        apiMessages.add(msg.toJson());
+      }
+    }
+    final body = <String, dynamic>{
+      'model': model,
+      'messages': apiMessages,
+      'stream': true,
+      'max_tokens': 4096,
+    };
+    if (systemPrompt != null) {
+      body['system'] = systemPrompt;
+    }
+    final url =
+        baseUrl.endsWith('/')
+            ? '${baseUrl}messages'
+            : '$baseUrl/messages';
+    return await HttpUtil().postStream(url, header: headers, data: body);
   }
 
   static Future<Uint8List?> getImageData(String url) async {

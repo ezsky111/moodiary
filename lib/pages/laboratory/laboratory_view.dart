@@ -19,15 +19,64 @@ class LaboratoryPage extends StatelessWidget {
       appBar: AppBar(title: Text(context.l10n.settingLab)),
       body: GetBuilder<LaboratoryLogic>(
         builder: (_) {
+          final currentProvider =
+              PrefUtil.getValue<String>('aiProvider') ?? 'openai';
+          final currentBaseUrl =
+              PrefUtil.getValue<String>('aiBaseUrl') ?? '';
+          final currentAiKey =
+              PrefUtil.getValue<String>('aiKey') ?? '';
+
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             children: [
+              // AI Provider section
+              Card.filled(
+                color: context.theme.colorScheme.surfaceContainerLow,
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AI 服务',
+                        style: context.textTheme.titleMedium,
+                      ),
+                      const Gap(12),
+                      Text(
+                        '提供商',
+                        style: context.textTheme.labelMedium,
+                      ),
+                      const Gap(8),
+                      SegmentedButton<String>(
+                        segments: const [
+                          ButtonSegment(
+                            value: 'openai',
+                            label: Text('OpenAI'),
+                            icon: Icon(Icons.auto_awesome),
+                          ),
+                          ButtonSegment(
+                            value: 'anthropic',
+                            label: Text('Anthropic'),
+                            icon: Icon(Icons.smart_toy),
+                          ),
+                        ],
+                        selected: {currentProvider},
+                        onSelectionChanged: (selected) {
+                          logic.setAiProvider(selected.first);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Gap(12),
               QrInputTile(
-                title: '${context.l10n.labTencentCloud} ID',
-                value: PrefUtil.getValue<String>('tencentId') ?? '',
-                prefix: 'tencentId',
+                title: 'AI Base URL',
+                value: currentBaseUrl,
+                prefix: 'aiBaseUrl',
                 onValue: (value) async {
-                  final res = await logic.setTencentID(id: value);
+                  final res = await logic.setAiBaseUrl(value);
                   if (res) {
                     toast.success();
                   } else {
@@ -37,11 +86,11 @@ class LaboratoryPage extends StatelessWidget {
               ),
               const Gap(12),
               QrInputTile(
-                title: '${context.l10n.labTencentCloud} Key',
-                value: PrefUtil.getValue<String>('tencentKey') ?? '',
-                prefix: 'tencentKey',
+                title: 'AI Key',
+                value: currentAiKey,
+                prefix: 'aiKey',
                 onValue: (value) async {
-                  final res = await logic.setTencentKey(key: value);
+                  final res = await logic.setAiKey(value);
                   if (res) {
                     toast.success();
                   } else {
@@ -50,6 +99,8 @@ class LaboratoryPage extends StatelessWidget {
                 },
               ),
               const Gap(12),
+
+              // Qweather section
               QrInputTile(
                 title: '${context.l10n.labQweather} Key',
                 value: PrefUtil.getValue<String>('qweatherKey') ?? '',

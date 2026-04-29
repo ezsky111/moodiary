@@ -6,8 +6,9 @@ import 'package:get/get.dart';
 import 'package:moodiary/api/api.dart';
 import 'package:moodiary/common/models/hunyuan.dart';
 import 'package:moodiary/persistence/isar.dart';
+import 'package:moodiary/persistence/pref.dart';
 import 'package:moodiary/utils/array_util.dart';
-import 'package:moodiary/utils/signature_util.dart';
+import 'package:moodiary/utils/notice_util.dart';
 
 import 'analyse_state.dart';
 
@@ -76,27 +77,78 @@ class AnalyseLogic extends GetxController {
   }
 
   Future<void> getAi() async {
-    final check = SignatureUtil.checkTencent();
-    if (check != null) {
-      state.reply = '';
+    final provider = PrefUtil.getValue<String>('aiProvider') ?? 'openai';
+    final model = PrefUtil.getValue<String>('aiModel') ?? '';
+    final baseUrl = PrefUtil.getValue<String>('aiBaseUrl');
+    final apiKey = PrefUtil.getValue<String>('aiKey');
+
+    if (baseUrl == null ||
+        apiKey == null ||
+        baseUrl.isEmpty ||
+        apiKey.isEmpty) {
+      toast.info(message: '请先在实验室配置 AI 服务');
+      return;
+    }
+
+    state.reply = '';
+    update();
+
+    final stream = provider == 'anthropic'
+        ? await Api.chatWithAnthropic(baseUrl, apiKey, model, [
+            const Message(
+              role: 'user',
+              content:
+                  '我会给你一组来自一款日记APP的数据，其中包含了在某一段时间内，日记所记录的心情情况，根据这些数据，分析用户最近的心情状况，并给出合理的建议，心情的值是一个从0.0到1.0的浮点数，从小到大表示心情从坏到好，给你的值是一个Map，其中的Key是心情指数，Value是对应心情指数出现的次数。给出的输出应当是结论，不需要给出分析过程，不需要其他反馈。',
+            ),
+            Message(role: 'user', content: '心情：${state.moodMap.toString()}'),
+          ])
+        : await Api.chatWithOpenAI(baseUrl, apiKey, model, [
+            const Message(
+              role: 'system',
+              content:
+                  '我会给你一组来自一款日记APP的数据，其中包含了在某一段时间内，日记所记录的心情情况，根据这些数据，分析用户最近的心情状况，并给出合理的建议，心情的值是一个从0.0到1.0的浮点数，从小到大表示心情从坏到好，给你的值是一个Map，其中的Key是心情指数，Value是对应心情指数出现的次数。给出的输出应当是结论，不需要给出分析过程，不需要其他反馈。',
+            ),
+            Message(role: 'user', content: '心情：${state.moodMap.toString()}'),
+          ]);
+
+    stream?.listen((content) {
+      if (content.isEmpty) return;
+
+      if (provider == 'anthropic') {
+        _parseAnthropicStream(content);
+      } else {
+        _parseOpenAiStream(content);
+      }
+    });
+  }
+
+  void _parseOpenAiStream(String content) {
+    if (!content.contains('data') || content.contains('[DONE]')) return;
+    try {
+      final data = jsonDecode(content.split('data: ')[1]) as Map<String, dynamic>;
+      final choices = data['choices'] as List?;
+      if (choices == null || choices.isEmpty) return;
+      final delta = choices[0]['delta'] as Map<String, dynamic>?;
+      final text = delta?['content'] as String? ?? '';
+      if (text.isEmpty) return;
+      state.reply += text;
       update();
-      final stream = await Api.getHunYuan(check['id']!, check['key']!, [
-        const Message(
-          role: 'system',
-          content:
-              '我会给你一组来自一款日记APP的数据，其中包含了在某一段时间内，日记所记录的心情情况，根据这些数据，分析用户最近的心情状况，并给出合理的建议，心情的值是一个从0.0到1.0的浮点数，从小到大表示心情从坏到好，给你的值是一个Map，其中的Key是心情指数，Value是对应心情指数出现的次数。给出的输出应当是结论，不需要给出分析过程，不需要其他反馈。',
-        ),
-        Message(role: 'user', content: '心情：${state.moodMap.toString()}'),
-      ], 0);
-      stream?.listen((content) {
-        if (content != '' && content.contains('data')) {
-          final HunyuanResponse result = HunyuanResponse.fromJson(
-            jsonDecode(content.split('data: ')[1]),
-          );
-          state.reply += result.choices!.first.delta!.content!;
+    } catch (_) {}
+  }
+
+  void _parseAnthropicStream(String content) {
+    if (!content.contains('data:')) return;
+    try {
+      final jsonStr = content.split('data: ').last.trim();
+      if (!jsonStr.startsWith('{')) return;
+      final data = jsonDecode(jsonStr) as Map<String, dynamic>;
+      if (data['type'] == 'content_block_delta') {
+        final delta = data['delta'] as Map<String, dynamic>?;
+        if (delta != null && delta['type'] == 'text_delta') {
+          state.reply += (delta['text'] as String? ?? '');
           update();
         }
-      });
-    }
+      }
+    } catch (_) {}
   }
 }

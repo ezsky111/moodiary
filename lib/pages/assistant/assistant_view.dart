@@ -1,3 +1,4 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,6 @@ import 'package:moodiary/common/values/border.dart';
 import 'package:moodiary/components/base/button.dart';
 import 'package:moodiary/components/base/text.dart';
 import 'package:moodiary/l10n/l10n.dart';
-
 import 'assistant_logic.dart';
 
 class AssistantPage extends StatelessWidget {
@@ -17,13 +17,6 @@ class AssistantPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final logic = Bind.find<AssistantLogic>();
     final state = Bind.find<AssistantLogic>().state;
-
-    final modelMap = {
-      0: 'hunyuan-lite',
-      1: 'hunyuan-standard',
-      2: 'hunyuan-pro',
-      3: 'hunyuan-turbo',
-    };
 
     Widget buildInput() {
       return Container(
@@ -137,6 +130,24 @@ class AssistantPage extends StatelessWidget {
       return const Center(child: FaIcon(FontAwesomeIcons.comments, size: 46.0));
     }
 
+    Future<void> showModelPicker(BuildContext context) async {
+      final result = await showTextInputDialog(
+        context: context,
+        textFields: [
+          DialogTextField(
+            initialText: state.aiModel.value,
+            hintText: '例如: gpt-4o, claude-3-sonnet-20240229',
+          ),
+        ],
+        title: '设置模型名称',
+        message: '请输入 AI 模型名称',
+        style: AdaptiveStyle.material,
+      );
+      if (result != null && result.first.isNotEmpty) {
+        logic.changeModel(result.first);
+      }
+    }
+
     return GetBuilder<AssistantLogic>(
       builder: (_) {
         return Scaffold(
@@ -159,45 +170,12 @@ class AssistantPage extends StatelessWidget {
                             leading: const PageBackButton(),
                             actions: [
                               GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return SimpleDialog(
-                                        title: const Text('选择模型'),
-                                        children: List.generate(
-                                          modelMap.length,
-                                          (index) {
-                                            return Obx(() {
-                                              return SimpleDialogOption(
-                                                child: Row(
-                                                  spacing: 4.0,
-                                                  children: [
-                                                    Text(modelMap[index]!),
-                                                    if (state
-                                                            .modelVersion
-                                                            .value ==
-                                                        index) ...[
-                                                      const Icon(
-                                                        Icons.check_rounded,
-                                                      ),
-                                                    ],
-                                                  ],
-                                                ),
-                                                onPressed: () {
-                                                  logic.changeModel(index);
-                                                },
-                                              );
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
+                                onTap: () => showModelPicker(context),
                                 child: Obx(() {
                                   return Text(
-                                    modelMap[state.modelVersion.value]!,
+                                    state.aiModel.value.isNotEmpty
+                                        ? state.aiModel.value
+                                        : '选择模型',
                                   );
                                 }),
                               ),

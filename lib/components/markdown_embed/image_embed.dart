@@ -9,10 +9,15 @@ class MarkdownImageEmbed extends StatelessWidget {
   final bool isEdit;
   final String imageName;
 
+  /// All image names in the current diary, used for swiping between images
+  /// in the preview page. Pass empty list to only show the current image.
+  final List<String> allImageNames;
+
   const MarkdownImageEmbed({
     super.key,
     required this.isEdit,
     required this.imageName,
+    this.allImageNames = const [],
   });
 
   @override
@@ -29,15 +34,20 @@ class MarkdownImageEmbed extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       onTap: () {
         if (!isEdit) {
-          showImageView(context, [imagePath], 0, heroTagPrefix: heroPrefix);
+          final paths = allImageNames.isEmpty
+              ? [imagePath]
+              : allImageNames
+                  .map((name) => FileUtil.getRealPath('image', name))
+                  .toList();
+          final index = allImageNames.isEmpty
+              ? 0
+              : allImageNames
+                  .indexOf(imageName)
+                  .clamp(0, allImageNames.length - 1);
+          showImageView(context, paths, index, heroTagPrefix: heroPrefix);
         }
       },
     );
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 300),
-        child: image,
-      ),
-    );
+    return Center(child: image);
   }
 }

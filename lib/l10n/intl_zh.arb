@@ -315,5 +315,13 @@
   "labTencentCloud": "腾讯云",
   "editChangeTypeTitle": "切换类型",
   "editChangeTypeMessage": "切换为“{type}”可能会导致格式或嵌入媒体丢失。是否继续？",
-  "editChangeTypeContinue": "继续"
+  "editChangeTypeContinue": "继续",
+  "aiPolish": "AI 润色",
+  "aiChat": "AI 聊天",
+  "aiPolishDialogTitle": "AI 润色选项",
+  "aiPolishTitle": "AI 设置标题",
+  "aiPolishMood": "AI 设置心情",
+  "aiPolishLayout": "AI 排版",
+  "aiPolishProcessing": "AI 润色中...",
+  "aiPolishSuccess": "AI 润色完成"
 }

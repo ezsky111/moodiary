@@ -1891,6 +1891,54 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'继续'**
   String get editChangeTypeContinue;
+
+  /// No description provided for @aiPolish.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 润色'**
+  String get aiPolish;
+
+  /// No description provided for @aiChat.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 聊天'**
+  String get aiChat;
+
+  /// No description provided for @aiPolishDialogTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 润色选项'**
+  String get aiPolishDialogTitle;
+
+  /// No description provided for @aiPolishTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 设置标题'**
+  String get aiPolishTitle;
+
+  /// No description provided for @aiPolishMood.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 设置心情'**
+  String get aiPolishMood;
+
+  /// No description provided for @aiPolishLayout.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 排版'**
+  String get aiPolishLayout;
+
+  /// No description provided for @aiPolishProcessing.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 润色中...'**
+  String get aiPolishProcessing;
+
+  /// No description provided for @aiPolishSuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 润色完成'**
+  String get aiPolishSuccess;
 }
 
 class _AppLocalizationsDelegate

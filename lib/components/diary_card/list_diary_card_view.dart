@@ -23,6 +23,33 @@ class ListDiaryCardComponent extends StatelessWidget with BasicCardLogic {
 
   @override
   Widget build(BuildContext context) {
+    Widget buildDateColumn() {
+      return SizedBox(
+        width: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              diary.time.day.toString(),
+              style: context.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: context.theme.colorScheme.primary,
+                height: 1.0,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              DateFormat.MMMM().format(diary.time),
+              style: context.textTheme.labelSmall?.copyWith(
+                color: context.theme.colorScheme.onSurfaceVariant,
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     Widget buildImage() {
       return AspectRatio(
         aspectRatio: 1.0,
@@ -48,9 +75,13 @@ class ListDiaryCardComponent extends StatelessWidget with BasicCardLogic {
           height: 132.0,
           child: Row(
             children: [
-              if (diary.imageName.isNotEmpty && int.parse(tag) & 1 == 0) ...[
-                buildImage(),
-              ],
+              buildDateColumn(),
+              VerticalDivider(
+                width: 1,
+                indent: 16,
+                endIndent: 16,
+                color: context.theme.colorScheme.outlineVariant,
+              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
@@ -84,13 +115,15 @@ class ListDiaryCardComponent extends StatelessWidget with BasicCardLogic {
                               diary.time,
                             ),
                             style: context.textTheme.labelSmall?.copyWith(
-                              color: context.theme.colorScheme.onSurfaceVariant,
+                              color:
+                                  context.theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                           FaIcon(
                             DiaryType.fromValue(diary.type).icon,
                             size: 10,
-                            color: context.theme.colorScheme.onSurfaceVariant,
+                            color:
+                                context.theme.colorScheme.onSurfaceVariant,
                           ),
                         ],
                       ),
@@ -98,7 +131,8 @@ class ListDiaryCardComponent extends StatelessWidget with BasicCardLogic {
                   ),
                 ),
               ),
-              if (diary.imageName.isNotEmpty && int.parse(tag) & 1 == 1) ...[
+              if (diary.imageName.isNotEmpty) ...[
+                const SizedBox(width: 4),
                 buildImage(),
               ],
             ],

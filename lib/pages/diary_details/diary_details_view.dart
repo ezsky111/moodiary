@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -35,7 +33,8 @@ class DiaryDetailsPage extends StatelessWidget {
   }
 
   Widget buildChipList({required BuildContext context, required Diary diary}) {
-    final dateTime = DateFormat.yMMMd().add_Hms().format(diary.time).split(' ');
+    final dateTime =
+        DateFormat.yMMMd().add_Hms().format(diary.time).split(' ');
     final date = dateTime.first;
     final time = dateTime.last;
     return Wrap(
@@ -112,11 +111,97 @@ class DiaryDetailsPage extends StatelessWidget {
     );
   }
 
+  Future<void> showAiPolishDialog(
+    BuildContext context,
+    DiaryDetailsLogic logic,
+    Diary diary,
+  ) async {
+    final setTitle = true.obs;
+    final setMood = true.obs;
+    final setLayout = true.obs;
+    final isLoading = false.obs;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return Obx(
+          () => AlertDialog(
+            title: Text(context.l10n.aiPolishDialogTitle),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isLoading.value)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32.0),
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('AI 处理中，请稍候...'),
+                      ],
+                    ),
+                  )
+                else ...[
+                  Obx(
+                    () => CheckboxListTile(
+                      value: setTitle.value,
+                      onChanged: (v) => setTitle.value = v ?? true,
+                      title: Text(context.l10n.aiPolishTitle),
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                  ),
+                  Obx(
+                    () => CheckboxListTile(
+                      value: setMood.value,
+                      onChanged: (v) => setMood.value = v ?? true,
+                      title: Text(context.l10n.aiPolishMood),
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                  ),
+                  Obx(
+                    () => CheckboxListTile(
+                      value: setLayout.value,
+                      onChanged: (v) => setLayout.value = v ?? true,
+                      title: Text(context.l10n.aiPolishLayout),
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              if (!isLoading.value) ...[
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(context.l10n.cancel),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    isLoading.value = true;
+                    await logic.aiPolish(
+                      context: context,
+                      setTitle: setTitle.value,
+                      setMood: setMood.value,
+                      setLayout: setLayout.value,
+                    );
+                    if (ctx.mounted) Navigator.of(ctx).pop();
+                  },
+                  child: Text(context.l10n.apply),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final logic = Bind.find<DiaryDetailsLogic>(tag: tag);
     final state = Bind.find<DiaryDetailsLogic>(tag: tag).state;
-    final size = MediaQuery.sizeOf(context);
+
 
     return GetBuilder<DiaryDetailsLogic>(
       tag: state.diary.id,
@@ -157,7 +242,8 @@ class DiaryDetailsPage extends StatelessWidget {
                                   },
                                   child: Row(
                                     spacing: 16.0,
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
                                     children: [
                                       const Icon(Icons.delete_rounded),
                                       Text(context.l10n.diaryDelete),
@@ -171,7 +257,8 @@ class DiaryDetailsPage extends StatelessWidget {
                                   },
                                   child: Row(
                                     spacing: 16.0,
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
                                     children: [
                                       const Icon(Icons.edit_rounded),
                                       Text(context.l10n.diaryEdit),
@@ -186,10 +273,45 @@ class DiaryDetailsPage extends StatelessWidget {
                                 },
                                 child: Row(
                                   spacing: 16.0,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.center,
                                   children: [
                                     const Icon(Icons.share_rounded),
                                     Text(context.l10n.diaryShare),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuDivider(),
+                              PopupMenuItem(
+                                onTap: () {
+                                  showAiPolishDialog(
+                                    context,
+                                    logic,
+                                    state.diary,
+                                  );
+                                },
+                                child: Row(
+                                  spacing: 16.0,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.auto_awesome_rounded),
+                                    Text(context.l10n.aiPolish),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuDivider(),
+                              PopupMenuItem(
+                                onTap: () {
+                                  logic.aiChat(state.diary);
+                                },
+                                child: Row(
+                                  spacing: 16.0,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.chat_rounded),
+                                    Text(context.l10n.aiChat),
                                   ],
                                 ),
                               ),

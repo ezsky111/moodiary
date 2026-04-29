@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:moodiary/common/models/isar/diary.dart';
 import 'package:moodiary/common/values/view_mode.dart';
 import 'package:moodiary/components/base/clipper.dart';
 import 'package:moodiary/components/base/loading.dart';
@@ -29,6 +30,20 @@ class DiaryTabViewComponent extends StatelessWidget {
       child: SizedBox(
         height: height,
         child: Center(child: Text(context.l10n.diaryTabViewEmpty)),
+      ),
+    );
+  }
+
+  /// Build a year section header widget
+  Widget _buildYearHeader(BuildContext context, int year) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, bottom: 8.0, left: 4.0),
+      child: Text(
+        '$year',
+        style: context.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: context.theme.colorScheme.onSurface,
+        ),
       ),
     );
   }
@@ -67,17 +82,36 @@ class DiaryTabViewComponent extends StatelessWidget {
 
     Widget buildList() {
       return Obx(() {
-        return SliverList.separated(
-          itemBuilder: (context, index) {
-            return ListDiaryCardComponent(
-              tag: index.toString(),
-              diary: state.diaryList[index],
-            );
-          },
-          separatorBuilder: (context, index) {
-            return const SizedBox(height: 8.0);
-          },
-          itemCount: state.diaryList.length,
+        final diaries = state.diaryList;
+        // Build flat list: year headers + diary cards
+        final items = <({int? year, Diary? diary})>[];
+        int? lastYear;
+        for (final diary in diaries) {
+          final year = diary.time.year;
+          if (year != lastYear) {
+            items.add((year: year, diary: null));
+            lastYear = year;
+          }
+          items.add((year: null, diary: diary));
+        }
+
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final item = items[index];
+              if (item.diary == null) {
+                return _buildYearHeader(context, item.year!);
+              }
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: ListDiaryCardComponent(
+                  tag: index.toString(),
+                  diary: item.diary!,
+                ),
+              );
+            },
+            childCount: items.length,
+          ),
         );
       }, key: const ValueKey('list'));
     }

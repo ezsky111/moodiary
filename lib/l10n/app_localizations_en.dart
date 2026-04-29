@@ -962,4 +962,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editChangeTypeContinue => 'Continue';
+
+  @override
+  String get aiPolish => 'AI Polish';
+
+  @override
+  String get aiChat => 'AI Chat';
+
+  @override
+  String get aiPolishDialogTitle => 'AI Polish Options';
+
+  @override
+  String get aiPolishTitle => 'AI Set Title';
+
+  @override
+  String get aiPolishMood => 'AI Set Mood';
+
+  @override
+  String get aiPolishLayout => 'AI Layout';
+
+  @override
+  String get aiPolishProcessing => 'AI Polishing...';
+
+  @override
+  String get aiPolishSuccess => 'AI Polish Complete';
 }

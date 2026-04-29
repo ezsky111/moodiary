@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:moodiary/api/api.dart';
 import 'package:moodiary/common/models/hunyuan.dart';
+import 'package:moodiary/common/models/isar/diary.dart';
 import 'package:moodiary/common/values/keyboard_state.dart';
 import 'package:moodiary/components/keyboard_listener/keyboard_listener.dart';
 import 'package:moodiary/persistence/pref.dart';
@@ -45,6 +46,16 @@ class AssistantLogic extends GetxController {
       },
     );
     keyboardObserver.start();
+    // 从路由参数中获取日记上下文
+    final diaryArg = Get.arguments;
+    if (diaryArg is Diary) {
+      state.messages[DateTime.now()] = Message(
+        role: 'system',
+        content:
+            '以下是一篇日记的内容，请基于此背景回答用户的问题：\n\n标题：${diaryArg.title}\n内容：${diaryArg.contentText}\n心情指数：${diaryArg.mood}',
+      );
+      update();
+    }
     super.onInit();
   }
 

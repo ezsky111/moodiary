@@ -315,5 +315,13 @@
   "labTencentCloud": "Tencent Cloud",
   "editChangeTypeTitle": "Switch Type",
   "editChangeTypeMessage": "Switching to \"{type}\" may cause formatting or embedded media to be lost. Continue?",
-  "editChangeTypeContinue": "Continue"
+  "editChangeTypeContinue": "Continue",
+  "aiPolish": "AI Polish",
+  "aiChat": "AI Chat",
+  "aiPolishDialogTitle": "AI Polish Options",
+  "aiPolishTitle": "AI Set Title",
+  "aiPolishMood": "AI Set Mood",
+  "aiPolishLayout": "AI Layout",
+  "aiPolishProcessing": "AI Polishing...",
+  "aiPolishSuccess": "AI Polish Complete"
 }

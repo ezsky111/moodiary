@@ -928,4 +928,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get editChangeTypeContinue => '继续';
+
+  @override
+  String get aiPolish => 'AI 润色';
+
+  @override
+  String get aiChat => 'AI 聊天';
+
+  @override
+  String get aiPolishDialogTitle => 'AI 润色选项';
+
+  @override
+  String get aiPolishTitle => 'AI 设置标题';
+
+  @override
+  String get aiPolishMood => 'AI 设置心情';
+
+  @override
+  String get aiPolishLayout => 'AI 排版';
+
+  @override
+  String get aiPolishProcessing => 'AI 润色中...';
+
+  @override
+  String get aiPolishSuccess => 'AI 润色完成';
 }

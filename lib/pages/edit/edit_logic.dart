@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
@@ -634,6 +635,50 @@ class EditLogic extends GetxController {
     }
   }
 
+  void changeType(DiaryType newType) {
+    if (newType == state.type) return;
+
+    final isCurrentlyMarkdown = state.type == DiaryType.markdown;
+    final isNewMarkdown = newType == DiaryType.markdown;
+
+    if (isCurrentlyMarkdown && !isNewMarkdown) {
+      // Markdown → Quill: convert raw text to Quill Delta document
+      final text = markdownTextEditingController?.text ?? '';
+      markdownTextEditingController?.removeListener(_listenCount);
+      markdownTextEditingController?.dispose();
+      markdownTextEditingController = null;
+      quillController?.removeListener(_listenCount);
+      quillController?.dispose();
+      quillController = QuillController(
+        document: Document.fromDelta(Delta()..insert(text)),
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+      quillController!.addListener(_listenCount);
+    } else if (!isCurrentlyMarkdown && isNewMarkdown) {
+      // Quill → Markdown: extract plain text from Quill document
+      final text =
+          quillController?.document.toPlainText([
+            ImageEmbedBuilder(isEdit: true),
+            VideoEmbedBuilder(isEdit: true),
+            AudioEmbedBuilder(isEdit: true),
+            TextIndentEmbedBuilder(isEdit: true),
+          ]).trim() ?? '';
+      quillController?.removeListener(_listenCount);
+      quillController?.dispose();
+      quillController = null;
+      markdownTextEditingController?.removeListener(_listenCount);
+      markdownTextEditingController?.dispose();
+      markdownTextEditingController = TextEditingController(text: text);
+      markdownTextEditingController!.addListener(_listenCount);
+    }
+    // text ↔ richText: same Quill format, no content conversion needed
+
+    state.type = newType;
+    state.renderMarkdown.value = false;
+    state.totalCount.value = _toPlainText().length;
+    update(['body']);
+  }
+
   DateTime? oldTime;
 
   void handleBack({required BuildContext context}) {
@@ -654,7 +699,7 @@ class EditLogic extends GetxController {
       lastDate: DateTime.now(),
       initialDatePickerMode: DatePickerMode.day,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      firstDate: DateTime(2000),
     );
     if (nowDateTime != null) {
       state.currentDiary.time = state.currentDiary.time.copyWith(

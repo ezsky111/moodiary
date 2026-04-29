@@ -137,6 +137,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingImportDes => 'Only supports files exported from this app';
 
   @override
+  String get settingXlsxImport => 'Import Excel';
+
+  @override
+  String get settingXlsxImportDes => 'Import diaries from Excel file';
+
+  @override
+  String settingXlsxImportSuccess(int count) {
+    return 'Successfully imported $count diaries';
+  }
+
+  @override
+  String settingXlsxImportResult(int success, int error) {
+    return 'Import completed: $success succeeded, $error failed';
+  }
+
+  @override
+  String get settingXlsxTemplate => 'Download Template';
+
+  @override
+  String get settingXlsxImporting => 'Importing diaries...';
+
+  @override
+  String get settingXlsxNoSheet => 'No worksheet found in the Excel file';
+
+  @override
   String get settingClean => 'Clear Cache';
 
   @override
@@ -926,4 +951,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labTencentCloud => 'Tencent Cloud';
+
+  @override
+  String get editChangeTypeTitle => 'Switch Type';
+
+  @override
+  String editChangeTypeMessage(Object type) {
+    return 'Switching to \"$type\" may cause formatting or embedded media to be lost. Continue?';
+  }
+
+  @override
+  String get editChangeTypeContinue => 'Continue';
 }

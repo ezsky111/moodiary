@@ -135,6 +135,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingImportDes => '仅支持本应用导出的文件';
 
   @override
+  String get settingXlsxImport => '导入 Excel';
+
+  @override
+  String get settingXlsxImportDes => '从 Excel 文件导入日记';
+
+  @override
+  String settingXlsxImportSuccess(int count) {
+    return '成功导入 $count 条日记';
+  }
+
+  @override
+  String settingXlsxImportResult(int success, int error) {
+    return '导入完成：成功 $success 条，失败 $error 条';
+  }
+
+  @override
+  String get settingXlsxTemplate => '下载模板';
+
+  @override
+  String get settingXlsxImporting => '正在导入日记...';
+
+  @override
+  String get settingXlsxNoSheet => 'Excel 文件中没有工作表';
+
+  @override
   String get settingClean => '清理缓存';
 
   @override
@@ -892,4 +917,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get labTencentCloud => '腾讯云';
+
+  @override
+  String get editChangeTypeTitle => '切换类型';
+
+  @override
+  String editChangeTypeMessage(Object type) {
+    return '切换为“$type”可能会导致格式或嵌入媒体丢失。是否继续？';
+  }
+
+  @override
+  String get editChangeTypeContinue => '继续';
 }

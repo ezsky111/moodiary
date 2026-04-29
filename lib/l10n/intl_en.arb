@@ -41,6 +41,30 @@
   "settingImportDialogContent": "Importing data will overwrite the existing data and the original data cannot be restored! Please confirm that the original data has been backed up.",
   "settingImportSelectFile": "Select File",
   "settingImportDes": "Only supports files exported from this app",
+  "settingXlsxImport": "Import Excel",
+  "settingXlsxImportDes": "Import diaries from Excel file",
+  "settingXlsxImportSuccess": "Successfully imported {count} diaries",
+  "@settingXlsxImportSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingXlsxImportResult": "Import completed: {success} succeeded, {error} failed",
+  "@settingXlsxImportResult": {
+    "placeholders": {
+      "success": {
+        "type": "int"
+      },
+      "error": {
+        "type": "int"
+      }
+    }
+  },
+  "settingXlsxTemplate": "Download Template",
+  "settingXlsxImporting": "Importing diaries...",
+  "settingXlsxNoSheet": "No worksheet found in the Excel file",
   "settingClean": "Clear Cache",
   "settingDisplay": "Personalization",
   "settingDiary": "Diary Settings",
@@ -288,5 +312,8 @@
   "noOption": "Not configured",
   "labQweather": "Qweather",
   "labTianditu": "Tianditu",
-  "labTencentCloud": "Tencent Cloud"
+  "labTencentCloud": "Tencent Cloud",
+  "editChangeTypeTitle": "Switch Type",
+  "editChangeTypeMessage": "Switching to \"{type}\" may cause formatting or embedded media to be lost. Continue?",
+  "editChangeTypeContinue": "Continue"
 }

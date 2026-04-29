@@ -23,14 +23,14 @@ class DiaryDetailsPage extends StatelessWidget {
     Widget? avatar, {
     required BuildContext context,
   }) {
-    return Chip(
+    return InputChip(
       label: label,
       avatar: avatar,
       side: BorderSide.none,
       backgroundColor: context.theme.colorScheme.surface,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      padding: EdgeInsets.zero,
       labelPadding: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
     );
   }
 

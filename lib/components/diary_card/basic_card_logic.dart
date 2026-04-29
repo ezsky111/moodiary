@@ -70,7 +70,7 @@ mixin BasicCardLogic {
   Future<void> toDiaryInCalendar(Diary diary) async {
     await HapticFeedback.mediumImpact();
     Bind.lazyPut(() => DiaryDetailsLogic(), tag: diary.id);
-    await Get.toNamed(AppRoutes.diaryPage, arguments: [diary.clone(), false]);
+    await Get.toNamed(AppRoutes.diaryPage, arguments: [diary.clone(), true]);
   }
 
   int getMaxLines(String context) {

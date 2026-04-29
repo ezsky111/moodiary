@@ -41,6 +41,30 @@
   "settingImportDialogContent": "导入数据会覆盖当前已经有的数据，且原有数据无法恢复！请确认备份好原有数据。",
   "settingImportSelectFile": "选择文件",
   "settingImportDes": "仅支持本应用导出的文件",
+  "settingXlsxImport": "导入 Excel",
+  "settingXlsxImportDes": "从 Excel 文件导入日记",
+  "settingXlsxImportSuccess": "成功导入 {count} 条日记",
+  "@settingXlsxImportSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingXlsxImportResult": "导入完成：成功 {success} 条，失败 {error} 条",
+  "@settingXlsxImportResult": {
+    "placeholders": {
+      "success": {
+        "type": "int"
+      },
+      "error": {
+        "type": "int"
+      }
+    }
+  },
+  "settingXlsxTemplate": "下载模板",
+  "settingXlsxImporting": "正在导入日记...",
+  "settingXlsxNoSheet": "Excel 文件中没有工作表",
   "settingClean": "清理缓存",
   "settingDisplay": "显示与个性",
   "settingDiary": "日记设置",
@@ -288,5 +312,8 @@
   "noOption": "未配置",
   "labQweather": "和风天气",
   "labTianditu": "天地图",
-  "labTencentCloud": "腾讯云"
+  "labTencentCloud": "腾讯云",
+  "editChangeTypeTitle": "切换类型",
+  "editChangeTypeMessage": "切换为“{type}”可能会导致格式或嵌入媒体丢失。是否继续？",
+  "editChangeTypeContinue": "继续"
 }

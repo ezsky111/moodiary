@@ -344,6 +344,48 @@ abstract class AppLocalizations {
   /// **'仅支持本应用导出的文件'**
   String get settingImportDes;
 
+  /// No description provided for @settingXlsxImport.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入 Excel'**
+  String get settingXlsxImport;
+
+  /// No description provided for @settingXlsxImportDes.
+  ///
+  /// In zh, this message translates to:
+  /// **'从 Excel 文件导入日记'**
+  String get settingXlsxImportDes;
+
+  /// No description provided for @settingXlsxImportSuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'成功导入 {count} 条日记'**
+  String settingXlsxImportSuccess(int count);
+
+  /// No description provided for @settingXlsxImportResult.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入完成：成功 {success} 条，失败 {error} 条'**
+  String settingXlsxImportResult(int success, int error);
+
+  /// No description provided for @settingXlsxTemplate.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载模板'**
+  String get settingXlsxTemplate;
+
+  /// No description provided for @settingXlsxImporting.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在导入日记...'**
+  String get settingXlsxImporting;
+
+  /// No description provided for @settingXlsxNoSheet.
+  ///
+  /// In zh, this message translates to:
+  /// **'Excel 文件中没有工作表'**
+  String get settingXlsxNoSheet;
+
   /// No description provided for @settingClean.
   ///
   /// In zh, this message translates to:
@@ -1831,6 +1873,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'腾讯云'**
   String get labTencentCloud;
+
+  /// No description provided for @editChangeTypeTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'切换类型'**
+  String get editChangeTypeTitle;
+
+  /// No description provided for @editChangeTypeMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'切换为“{type}”可能会导致格式或嵌入媒体丢失。是否继续？'**
+  String editChangeTypeMessage(Object type);
+
+  /// No description provided for @editChangeTypeContinue.
+  ///
+  /// In zh, this message translates to:
+  /// **'继续'**
+  String get editChangeTypeContinue;
 }
 
 class _AppLocalizationsDelegate

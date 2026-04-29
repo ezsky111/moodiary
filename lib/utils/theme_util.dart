@@ -307,6 +307,7 @@ class ThemeUtil {
     Brightness brightness,
   ) {
     return ThemeData(
+      useMaterial3: true,
       colorScheme: colorScheme,
       materialTapTargetSize: MaterialTapTargetSize.padded,
       scrollbarTheme: ScrollbarThemeData(
@@ -314,19 +315,27 @@ class ThemeUtil {
         thickness: WidgetStateProperty.all(4.0),
         radius: const Radius.circular(2.0),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        // ignore: deprecated_member_use
-        year2023: false,
-      ),
-      sliderTheme: const SliderThemeData(
-        // ignore: deprecated_member_use
-        year2023: false,
-      ),
       brightness: brightness,
       appBarTheme: AppBarTheme(
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: .0,
+        scrolledUnderElevation: 1.0,
         backgroundColor: colorScheme.surface,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
       ),
       fontFamily: fontFamily,
       typography: typography,

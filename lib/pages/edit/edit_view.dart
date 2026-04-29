@@ -83,7 +83,7 @@ class EditPage extends StatelessWidget {
           ? Wrap(
             spacing: 8.0,
             children: List.generate(state.currentDiary.tags.length, (index) {
-              return Chip(
+              return InputChip(
                 label: Text(
                   state.currentDiary.tags[index],
                   style: TextStyle(
@@ -413,31 +413,101 @@ class EditPage extends StatelessWidget {
       );
     }
 
-    Widget buildType() {
-      return Container(
-        decoration: BoxDecoration(
-          color: context.theme.colorScheme.surfaceContainer.withValues(
-            alpha: 0.8,
-          ),
-          borderRadius: AppBorderRadius.smallBorderRadius,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: RichText(
-          text: TextSpan(
-            text: '${context.l10n.diaryType} ',
-            style: context.textTheme.labelSmall,
-            children: [
-              TextSpan(
-                text: switch (state.type) {
-                  DiaryType.text => context.l10n.homeNewDiaryPlainText,
-                  DiaryType.markdown => context.l10n.homeNewDiaryMarkdown,
-                  DiaryType.richText => context.l10n.homeNewDiaryRichText,
-                },
-                style: context.textTheme.labelSmall?.copyWith(
-                  color: context.theme.colorScheme.primary,
-                ),
+    void showTypePicker(BuildContext context) {
+      final typeLabels = {
+        DiaryType.text: context.l10n.homeNewDiaryPlainText,
+        DiaryType.richText: context.l10n.homeNewDiaryRichText,
+        DiaryType.markdown: context.l10n.homeNewDiaryMarkdown,
+      };
+
+      showFloatingModalBottomSheet(
+        context: context,
+        builder: (ctx) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.l10n.diaryType, style: context.textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  ...DiaryType.values.map((type) {
+                    final isSelected = state.type == type;
+                    final isMarkdownType = type == DiaryType.markdown;
+                    final isCurrentlyMarkdown = state.type == DiaryType.markdown;
+                    final needsConversion = isMarkdownType != isCurrentlyMarkdown && type != state.type;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: ListTile(
+                        leading: Icon(type.icon, size: 20),
+                        title: Text(typeLabels[type]!),
+                        trailing: isSelected
+                            ? Icon(Icons.check, color: context.theme.colorScheme.primary)
+                            : null,
+                        selected: isSelected,
+                        selectedTileColor: context.theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        onTap: () async {
+                          if (isSelected) {
+                            Navigator.pop(ctx);
+                            return;
+                          }
+                          if (needsConversion && ctx.mounted) {
+                            Navigator.pop(ctx);
+                            final result = await showOkAlertDialog(
+                              context: context,
+                              title: context.l10n.editChangeTypeTitle,
+                              message: context.l10n.editChangeTypeMessage(typeLabels[type]!),
+                              okLabel: context.l10n.editChangeTypeContinue,
+                            );
+                            if (result == OkCancelResult.ok && context.mounted) {
+                              logic.changeType(type);
+                            }
+                          } else {
+                            Navigator.pop(ctx);
+                            logic.changeType(type);
+                          }
+                        },
+                      ),
+                    );
+                  }),
+                ],
               ),
-            ],
+            ),
+          );
+        },
+      );
+    }
+
+    Widget buildType() {
+      return GestureDetector(
+        onTap: () => showTypePicker(context),
+        child: Container(
+          decoration: BoxDecoration(
+            color: context.theme.colorScheme.surfaceContainer.withValues(
+              alpha: 0.8,
+            ),
+            borderRadius: AppBorderRadius.smallBorderRadius,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: RichText(
+            text: TextSpan(
+              text: '${context.l10n.diaryType} ',
+              style: context.textTheme.labelSmall,
+              children: [
+                TextSpan(
+                  text: switch (state.type) {
+                    DiaryType.text => context.l10n.homeNewDiaryPlainText,
+                    DiaryType.markdown => context.l10n.homeNewDiaryMarkdown,
+                    DiaryType.richText => context.l10n.homeNewDiaryRichText,
+                  },
+                  style: context.textTheme.labelSmall?.copyWith(
+                    color: context.theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );

@@ -30,7 +30,7 @@ class ListDiaryCardComponent extends StatelessWidget with BasicCardLogic {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              diary.time.day.toString(),
+              diary.time.day.toString().padLeft(2, '0'),
               style: context.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: context.theme.colorScheme.primary,
@@ -51,13 +51,14 @@ class ListDiaryCardComponent extends StatelessWidget with BasicCardLogic {
     }
 
     Widget buildImage() {
-      return AspectRatio(
-        aspectRatio: 1.0,
+      return SizedBox(
+        width: 100,
+        height: 100,
         child: ClipRRect(
           borderRadius: AppBorderRadius.mediumBorderRadius,
           child: MoodiaryImage(
             imagePath: FileUtil.getRealPath('image', diary.imageName.first),
-            size: 132,
+            size: 100,
           ),
         ),
       );

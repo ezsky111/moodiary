@@ -952,4 +952,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiPolishSuccess => 'AI 润色完成';
+
+  @override
+  String get aiPolishCategory => 'AI 设置分类';
 }

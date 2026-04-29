@@ -1939,6 +1939,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'AI 润色完成'**
   String get aiPolishSuccess;
+
+  /// No description provided for @aiPolishCategory.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 设置分类'**
+  String get aiPolishCategory;
 }
 
 class _AppLocalizationsDelegate

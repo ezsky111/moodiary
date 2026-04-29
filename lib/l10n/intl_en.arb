@@ -323,5 +323,6 @@
   "aiPolishMood": "AI Set Mood",
   "aiPolishLayout": "AI Layout",
   "aiPolishProcessing": "AI Polishing...",
-  "aiPolishSuccess": "AI Polish Complete"
+  "aiPolishSuccess": "AI Polish Complete",
+  "aiPolishCategory": "AI Set Category"
 }

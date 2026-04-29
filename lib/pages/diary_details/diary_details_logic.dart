@@ -122,6 +122,7 @@ class DiaryDetailsLogic extends GetxController {
     required bool setTitle,
     required bool setMood,
     required bool setLayout,
+    required bool setCategory,
   }) async {
     if (!_checkAiConfig()) return;
 
@@ -143,6 +144,17 @@ class DiaryDetailsLogic extends GetxController {
     prompt.writeln('当前心情指数：${diary.mood}（0-1之间，0代表最差，1代表最好）');
     prompt.writeln();
 
+    if (setCategory) {
+      final categories = await IsarUtil.getAllCategoryAsync();
+      if (categories.isNotEmpty) {
+        prompt.writeln('当前可用分类：');
+        for (final cat in categories) {
+          prompt.writeln('- ${cat.categoryName} (ID: ${cat.id})');
+        }
+        prompt.writeln();
+      }
+    }
+
     final List<String> instructions = [];
     if (setTitle) {
       instructions.add(
@@ -157,6 +169,11 @@ class DiaryDetailsLogic extends GetxController {
     if (setLayout) {
       instructions.add(
         '"content": "美化排版后的日记正文"',
+      );
+    }
+    if (setCategory) {
+      instructions.add(
+        '"categoryId": "从当前可用分类中选择最合适的ID，不设置则为空字符串"',
       );
     }
 
@@ -187,6 +204,7 @@ class DiaryDetailsLogic extends GetxController {
       setTitle: setTitle,
       setMood: setMood,
       setLayout: setLayout,
+      setCategory: setCategory,
     );
   }
 
@@ -195,6 +213,7 @@ class DiaryDetailsLogic extends GetxController {
     required bool setTitle,
     required bool setMood,
     required bool setLayout,
+    required bool setCategory,
   }) async {
     try {
       // Extract JSON from response (handle markdown code blocks)
@@ -239,6 +258,13 @@ class DiaryDetailsLogic extends GetxController {
           newDiary.contentText = content;
           hasChanges = true;
         }
+      }
+      if (setCategory && data.containsKey('categoryId')) {
+        final categoryId = data['categoryId'] as String?;
+        newDiary.categoryId = (categoryId != null && categoryId.isNotEmpty)
+            ? categoryId
+            : null;
+        hasChanges = true;
       }
 
       if (!hasChanges) {

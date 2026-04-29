@@ -986,4 +986,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPolishSuccess => 'AI Polish Complete';
+
+  @override
+  String get aiPolishCategory => 'AI Set Category';
 }

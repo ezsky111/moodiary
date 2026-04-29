@@ -119,6 +119,7 @@ class DiaryDetailsPage extends StatelessWidget {
     final setTitle = true.obs;
     final setMood = true.obs;
     final setLayout = true.obs;
+    final setCategory = true.obs;
     final isLoading = false.obs;
 
     showDialog(
@@ -167,6 +168,14 @@ class DiaryDetailsPage extends StatelessWidget {
                       controlAffinity: ListTileControlAffinity.leading,
                     ),
                   ),
+                  Obx(
+                    () => CheckboxListTile(
+                      value: setCategory.value,
+                      onChanged: (v) => setCategory.value = v ?? true,
+                      title: Text(context.l10n.aiPolishCategory),
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                  ),
                 ],
               ],
             ),
@@ -184,6 +193,7 @@ class DiaryDetailsPage extends StatelessWidget {
                       setTitle: setTitle.value,
                       setMood: setMood.value,
                       setLayout: setLayout.value,
+                      setCategory: setCategory.value,
                     );
                     if (ctx.mounted) Navigator.of(ctx).pop();
                   },

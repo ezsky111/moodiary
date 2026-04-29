@@ -13,6 +13,17 @@ import 'assistant_logic.dart';
 class AssistantPage extends StatelessWidget {
   const AssistantPage({super.key});
 
+  /// Normalize single newlines to double newlines for proper markdown rendering.
+  /// In markdown, a single \n does not create a visible line break — it's treated
+  /// as a space. Converting isolated \n to \n\n ensures paragraph breaks render.
+  static String _formatContent(String content) {
+    if (content.isEmpty) return content;
+    return content.replaceAllMapped(
+      RegExp(r'(?<!\n)\n(?!\n)'),
+      (_) => '\n\n',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final logic = Bind.find<AssistantLogic>();
@@ -78,7 +89,7 @@ class AssistantPage extends StatelessWidget {
                         ],
                       ),
                       MarkdownBlock(
-                        data: messageList[index].content,
+                        data: _formatContent(messageList[index].content),
                         selectable: true,
                         config:
                             context.isDarkMode
@@ -108,7 +119,7 @@ class AssistantPage extends StatelessWidget {
                         ],
                       ),
                       MarkdownBlock(
-                        data: messageList[index].content,
+                        data: _formatContent(messageList[index].content),
                         selectable: true,
                         config:
                             context.isDarkMode

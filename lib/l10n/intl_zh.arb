@@ -323,5 +323,6 @@
   "aiPolishMood": "AI 设置心情",
   "aiPolishLayout": "AI 排版",
   "aiPolishProcessing": "AI 润色中...",
-  "aiPolishSuccess": "AI 润色完成"
+  "aiPolishSuccess": "AI 润色完成",
+  "aiPolishCategory": "AI 设置分类"
 }

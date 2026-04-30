@@ -121,7 +121,6 @@ class DiaryDetailsLogic extends GetxController {
     required BuildContext context,
     required bool setTitle,
     required bool setMood,
-    required bool setLayout,
     required bool setCategory,
   }) async {
     if (!_checkAiConfig()) return;
@@ -166,11 +165,6 @@ class DiaryDetailsLogic extends GetxController {
         '"mood": 分析内容给出心情值(0-1之间，一位小数)',
       );
     }
-    if (setLayout) {
-      instructions.add(
-        '"content": "美化排版后的日记正文"',
-      );
-    }
     if (setCategory) {
       instructions.add(
         '"categoryId": "从当前可用分类中选择最合适的ID，不设置则为空字符串"',
@@ -203,7 +197,6 @@ class DiaryDetailsLogic extends GetxController {
       response,
       setTitle: setTitle,
       setMood: setMood,
-      setLayout: setLayout,
       setCategory: setCategory,
     );
   }
@@ -212,7 +205,6 @@ class DiaryDetailsLogic extends GetxController {
     String response, {
     required bool setTitle,
     required bool setMood,
-    required bool setLayout,
     required bool setCategory,
   }) async {
     try {
@@ -249,13 +241,6 @@ class DiaryDetailsLogic extends GetxController {
         final mood = data['mood'];
         if (mood is num) {
           newDiary.mood = mood.toDouble().clamp(0.0, 1.0);
-          hasChanges = true;
-        }
-      }
-      if (setLayout && data.containsKey('content')) {
-        final content = data['content'] as String?;
-        if (content != null && content.isNotEmpty) {
-          newDiary.contentText = content;
           hasChanges = true;
         }
       }

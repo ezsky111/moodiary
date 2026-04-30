@@ -1922,12 +1922,6 @@ abstract class AppLocalizations {
   /// **'AI 设置心情'**
   String get aiPolishMood;
 
-  /// No description provided for @aiPolishLayout.
-  ///
-  /// In zh, this message translates to:
-  /// **'AI 排版'**
-  String get aiPolishLayout;
-
   /// No description provided for @aiPolishProcessing.
   ///
   /// In zh, this message translates to:

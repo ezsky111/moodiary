@@ -11,7 +11,10 @@ import 'package:moodiary/components/keyboard_listener/keyboard_listener.dart';
 import 'package:moodiary/persistence/pref.dart';
 import 'package:moodiary/utils/notice_util.dart';
 
+import 'assistant_diary_memory.dart';
 import 'assistant_state.dart';
+import 'companion_persona.dart';
+import 'diary_analysis/diary_analysis_model.dart';
 
 class AssistantLogic extends GetxController {
   final AssistantState state = AssistantState();
@@ -46,9 +49,14 @@ class AssistantLogic extends GetxController {
       },
     );
     keyboardObserver.start();
+    // 异步构建日记记忆上下文
+    _refreshMemoryContext();
+    // 加载已保存的 AI 分析总结
+    state.diaryAnalysis = DiaryAnalysis.fromPrefs();
     // 从路由参数中获取日记上下文
     final diaryArg = Get.arguments;
     if (diaryArg is Diary) {
+      state.diaryContext = diaryArg;
       state.messages[DateTime.now()] = Message(
         role: 'system',
         content:
@@ -68,6 +76,39 @@ class AssistantLogic extends GetxController {
     super.onClose();
   }
 
+  /// 刷新日记记忆缓存
+  Future<void> _refreshMemoryContext() async {
+    state.memoryContext = await DiaryMemoryService.buildMemoryContext();
+  }
+
+  /// 构建包含人设和记忆的系统提示
+  Future<String> _buildSystemPrompt() async {
+    final parts = <String>[];
+
+    // 1. 人设信息
+    final persona = CompanionPersona.fromPrefs();
+    parts.add(persona.toSystemPrompt());
+
+    // 2. 日记记忆（近期日记内容）
+    if (state.memoryContext.isNotEmpty) {
+      parts.add(state.memoryContext);
+    }
+
+    // 3. 已有的系统消息（例如从路由传入的日记上下文）
+    for (final msg in state.messages.values) {
+      if (msg.role == 'system') {
+        parts.add(msg.content);
+      }
+    }
+
+    // 4. AI 分析总结（用户主动触发的日记范围分析）
+    if (state.diaryAnalysis != null) {
+      parts.add(state.diaryAnalysis!.toSystemPrompt());
+    }
+
+    return parts.join('\n\n');
+  }
+
   void handleBack() {
     if (focusNode.hasFocus) {
       unFocus();
@@ -85,6 +126,9 @@ class AssistantLogic extends GetxController {
 
   void newChat() {
     state.messages = {};
+    state.diaryContext = null;
+    state.diaryAnalysis = DiaryAnalysis.fromPrefs();
+    _refreshMemoryContext();
     update();
   }
 
@@ -122,12 +166,17 @@ class AssistantLogic extends GetxController {
     update();
     toBottom();
 
+    // 构建系统提示（人设 + 记忆），排除已有的系统消息避免重复
+    final systemContent = await _buildSystemPrompt();
+    final apiMessages = <Message>[
+      Message(role: 'system', content: systemContent),
+      ...state.messages.values.where((m) => m.role != 'system'),
+    ];
+
     //带着上下文请求
     final stream = provider == 'anthropic'
-        ? await Api.chatWithAnthropic(baseUrl, apiKey, model,
-            state.messages.values.toList())
-        : await Api.chatWithOpenAI(baseUrl, apiKey, model,
-            state.messages.values.toList());
+        ? await Api.chatWithAnthropic(baseUrl, apiKey, model, apiMessages)
+        : await Api.chatWithOpenAI(baseUrl, apiKey, model, apiMessages);
 
     //如果收到了请求，添加一个回答上下文
     final replyTime = DateTime.now();

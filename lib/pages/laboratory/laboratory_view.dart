@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:moodiary/components/base/tile/qr_tile.dart';
 import 'package:moodiary/l10n/l10n.dart';
+import 'package:moodiary/pages/assistant/companion_persona.dart';
 import 'package:moodiary/persistence/pref.dart';
 import 'package:moodiary/utils/notice_util.dart';
 
@@ -97,6 +98,22 @@ class LaboratoryPage extends StatelessWidget {
                     toast.error();
                   }
                 },
+              ),
+              const Gap(12),
+              ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: const Text('伴侣人设'),
+                subtitle: const Text('设置 AI 伴侣的名字、性格和说话风格'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => CompanionPersona.showSettingsDialog(context),
+              ),
+              const Gap(12),
+              ListTile(
+                leading: const Icon(Icons.analytics_outlined),
+                title: const Text('日记分析'),
+                subtitle: const Text('选择时间范围，让 AI 分析总结日记'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Get.toNamed('/assistant/analysis'),
               ),
               const Gap(12),
 

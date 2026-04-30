@@ -11,6 +11,8 @@ import 'package:moodiary/pages/analyse/analyse_logic.dart';
 import 'package:moodiary/pages/analyse/analyse_view.dart';
 import 'package:moodiary/pages/assistant/assistant_logic.dart';
 import 'package:moodiary/pages/assistant/assistant_view.dart';
+import 'package:moodiary/pages/assistant/diary_analysis/diary_analysis_logic.dart';
+import 'package:moodiary/pages/assistant/diary_analysis/diary_analysis_view.dart';
 import 'package:moodiary/pages/backup_sync/backup_sync_logic.dart';
 import 'package:moodiary/pages/backup_sync/backup_sync_view.dart';
 import 'package:moodiary/pages/category_manager/category_manager_logic.dart';
@@ -168,6 +170,11 @@ class AppPages {
       name: AppRoutes.assistantPage,
       page: () => const AssistantPage(),
       binds: [Bind.lazyPut(fenix: true, () => AssistantLogic())],
+    ),
+    MoodiaryGetPage(
+      name: AppRoutes.analysisPage,
+      page: () => const DiaryAnalysisPage(),
+      binds: [Bind.lazyPut(fenix: true, () => DiaryAnalysisLogic())],
     ),
     MoodiaryGetPage(
       name: AppRoutes.sponsorPage,

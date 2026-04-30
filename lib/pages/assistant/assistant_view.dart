@@ -8,7 +8,9 @@ import 'package:moodiary/common/values/border.dart';
 import 'package:moodiary/components/base/button.dart';
 import 'package:moodiary/components/base/text.dart';
 import 'package:moodiary/l10n/l10n.dart';
+
 import 'assistant_logic.dart';
+import 'companion_persona.dart';
 
 class AssistantPage extends StatelessWidget {
   const AssistantPage({super.key});
@@ -189,6 +191,17 @@ class AssistantPage extends StatelessWidget {
                                         : '选择模型',
                                   );
                                 }),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.person_outline),
+                                onPressed: () =>
+                                    CompanionPersona.showSettingsDialog(context),
+                                tooltip: '伴侣人设',
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.analytics_outlined),
+                                onPressed: () => Get.toNamed('/assistant/analysis'),
+                                tooltip: '日记分析',
                               ),
                               IconButton(
                                 onPressed: () {

@@ -35,6 +35,9 @@ abstract class AppRoutes {
   //助手路由
   static const assistantPage = '/assistant';
 
+  //日记分析页路由
+  static const analysisPage = '/assistant/analysis';
+
   //启动页路由
   static const startPage = '/start';
 

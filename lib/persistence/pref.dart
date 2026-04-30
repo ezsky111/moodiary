@@ -98,6 +98,10 @@ class PrefUtil {
     'aiBaseUrl',
     'aiKey',
     'aiModel',
+    // AI 伴侣人设
+    'companionPersona',
+    // AI 日记分析
+    'diaryAnalysis',
   };
 
   static Future<void> initPref() async {

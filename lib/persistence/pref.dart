@@ -102,6 +102,10 @@ class PrefUtil {
     'companionPersona',
     // AI 日记分析
     'diaryAnalysis',
+    // AI 助手聊天历史
+    'chatHistory',
+    // AI 助手选中日记上下文
+    'chatDiaryContextIds',
   };
 
   static Future<void> initPref() async {

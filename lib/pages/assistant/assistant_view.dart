@@ -31,6 +31,45 @@ class AssistantPage extends StatelessWidget {
     final logic = Bind.find<AssistantLogic>();
     final state = Bind.find<AssistantLogic>().state;
 
+    Widget buildDiaryChips() {
+      final diaries = state.selectedDiaries;
+      if (diaries.isEmpty) return const SizedBox.shrink();
+      return Container(
+        constraints: const BoxConstraints(maxHeight: 48),
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: diaries.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 6),
+          itemBuilder: (context, index) {
+            final diary = diaries[index];
+            return InputChip(
+              label: Text(
+                diary.title.isEmpty ? '无标题' : diary.title,
+                style: context.textTheme.labelSmall,
+              ),
+              deleteIcon: const Icon(Icons.close, size: 14),
+              onDeleted: () => logic.removeSelectedDiary(diary),
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              avatar: CircleAvatar(
+                radius: 8,
+                backgroundColor: context.theme.colorScheme
+                    .primaryContainer,
+                child: Text(
+                  DateFormat('Md').format(diary.time),
+                  style: context.textTheme.labelSmall?.copyWith(
+                    fontSize: 8,
+                    color: context.theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
     Widget buildInput() {
       return Container(
         padding: const EdgeInsets.all(8.0),
@@ -199,8 +238,13 @@ class AssistantPage extends StatelessWidget {
                                 tooltip: '伴侣人设',
                               ),
                               IconButton(
+                                icon: const Icon(Icons.library_books_outlined),
+                                onPressed: () => logic.openDiaryPicker(context),
+                                tooltip: '选择日记',
+                              ),
+                              IconButton(
                                 icon: const Icon(Icons.analytics_outlined),
-                                onPressed: () => Get.toNamed('/assistant/analysis'),
+                                onPressed: () => Get.toNamed('/analyse'),
                                 tooltip: '日记分析',
                               ),
                               IconButton(
@@ -215,6 +259,7 @@ class AssistantPage extends StatelessWidget {
                         ],
                       ),
                     ),
+                    buildDiaryChips(),
                     buildInput(),
                   ],
                 ),

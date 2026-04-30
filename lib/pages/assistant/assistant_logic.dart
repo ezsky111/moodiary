@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:moodiary/api/api.dart';
 import 'package:moodiary/common/models/hunyuan.dart';
 import 'package:moodiary/common/models/isar/diary.dart';
 import 'package:moodiary/common/values/keyboard_state.dart';
 import 'package:moodiary/components/keyboard_listener/keyboard_listener.dart';
+import 'package:moodiary/persistence/isar.dart';
 import 'package:moodiary/persistence/pref.dart';
 import 'package:moodiary/utils/notice_util.dart';
 
@@ -53,6 +55,10 @@ class AssistantLogic extends GetxController {
     _refreshMemoryContext();
     // 加载已保存的 AI 分析总结
     state.diaryAnalysis = DiaryAnalysis.fromPrefs();
+    // 加载持久化的聊天历史
+    state.loadMessages();
+    // 加载持久化的日记上下文
+    state.loadDiaryContext();
     // 从路由参数中获取日记上下文
     final diaryArg = Get.arguments;
     if (diaryArg is Diary) {
@@ -70,6 +76,8 @@ class AssistantLogic extends GetxController {
   @override
   void onClose() {
     keyboardObserver.stop();
+    state.saveDiaryContext();
+    state.saveMessages();
     textEditingController.dispose();
     scrollController.dispose();
     focusNode.dispose();
@@ -94,19 +102,45 @@ class AssistantLogic extends GetxController {
       parts.add(state.memoryContext);
     }
 
-    // 3. 已有的系统消息（例如从路由传入的日记上下文）
+    // 3. 用户选中的多篇日记上下文
+    if (state.selectedDiaries.isNotEmpty) {
+      final buf = StringBuffer('用户选中的以下日记内容供参考：');
+      for (final diary in state.selectedDiaries) {
+        final dateStr = DateFormat('yyyy-MM-dd').format(diary.time);
+        buf.writeln('\n\n[$dateStr] 标题：${diary.title}');
+        if (diary.contentText.isNotEmpty) {
+          const maxLen = 300;
+          final preview = diary.contentText.length > maxLen
+              ? '${diary.contentText.substring(0, maxLen)}...'
+              : diary.contentText;
+          buf.writeln('内容：$preview');
+        }
+        buf.writeln('心情：${_moodToString(diary.mood)}');
+      }
+      parts.add(buf.toString());
+    }
+
+    // 4. 已有的系统消息（例如从路由传入的日记上下文）
     for (final msg in state.messages.values) {
       if (msg.role == 'system') {
         parts.add(msg.content);
       }
     }
 
-    // 4. AI 分析总结（用户主动触发的日记范围分析）
+    // 5. AI 分析总结（用户主动触发的日记范围分析）
     if (state.diaryAnalysis != null) {
       parts.add(state.diaryAnalysis!.toSystemPrompt());
     }
 
     return parts.join('\n\n');
+  }
+
+  static String _moodToString(double mood) {
+    if (mood >= 0.8) return '非常好';
+    if (mood >= 0.6) return '好';
+    if (mood >= 0.4) return '一般';
+    if (mood >= 0.2) return '不太好';
+    return '很差';
   }
 
   void handleBack() {
@@ -127,13 +161,163 @@ class AssistantLogic extends GetxController {
   void newChat() {
     state.messages = {};
     state.diaryContext = null;
+    state.selectedDiaries = [];
     state.diaryAnalysis = DiaryAnalysis.fromPrefs();
+    state.saveMessages();
+    state.saveDiaryContext();
     _refreshMemoryContext();
     update();
   }
 
   void clearText() {
     textEditingController.clear();
+  }
+
+  /// 打开日记多选选择器
+  Future<void> openDiaryPicker(BuildContext context) async {
+    final diaries = await IsarUtil.getAllDiariesSorted();
+    if (diaries.isEmpty) {
+      toast.info(message: '没有可选的日记');
+      return;
+    }
+
+    // 已选中的 isarId 集合
+    final selectedIds = state.selectedDiaries.map((d) => d.isarId).toSet();
+
+    // 在副本中维护选择状态
+    final tempSelected = <Diary>[...state.selectedDiaries];
+
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.library_books_outlined),
+                        const SizedBox(width: 8),
+                        Text(
+                          '选择日记',
+                          style: context.textTheme.titleMedium,
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${tempSelected.length}/${AssistantState.maxSelectedDiaries}',
+                          style: context.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: diaries.length,
+                      itemBuilder: (context, index) {
+                        final diary = diaries[index];
+                        final isSelected = selectedIds.contains(diary.isarId) ||
+                            tempSelected.any((d) => d.isarId == diary.isarId);
+                        final isFull = tempSelected.length >=
+                                AssistantState.maxSelectedDiaries &&
+                            !isSelected;
+                        final dateStr =
+                            DateFormat('MM/dd').format(diary.time);
+
+                        return CheckboxListTile(
+                          value: isSelected,
+                          onChanged: isFull
+                              ? null
+                              : (_) {
+                                  setState(() {
+                                    if (isSelected) {
+                                      tempSelected.removeWhere(
+                                        (d) => d.isarId == diary.isarId,
+                                      );
+                                      selectedIds.remove(diary.isarId);
+                                    } else {
+                                      tempSelected.add(diary);
+                                      selectedIds.add(diary.isarId);
+                                    }
+                                  });
+                                },
+                          secondary: CircleAvatar(
+                            radius: 16,
+                            backgroundColor:
+                                context.theme.colorScheme.primaryContainer,
+                            child: Text(
+                              dateStr,
+                              style: context.textTheme.labelSmall?.copyWith(
+                                color: context
+                                    .theme.colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            diary.title.isEmpty ? '无标题' : diary.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            diary.contentText.length > 50
+                                ? '${diary.contentText.substring(0, 50)}...'
+                                : diary.contentText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('取消'),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton(
+                          onPressed: tempSelected.isEmpty
+                              ? null
+                              : () {
+                                  state.selectedDiaries =
+                                      List.from(tempSelected);
+                                  state.saveDiaryContext();
+                                  update();
+                                  Navigator.pop(ctx);
+                                },
+                          child: Text('添加 (${tempSelected.length})'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// 移除选中的日记
+  void removeSelectedDiary(Diary diary) {
+    state.selectedDiaries.removeWhere((d) => d.isarId == diary.isarId);
+    state.saveDiaryContext();
+    update();
   }
 
   // Check if AI config is available
@@ -163,6 +347,7 @@ class AssistantLogic extends GetxController {
     //拿到用户提问后，对话上下文中增加一项用户提问
     final askTime = DateTime.now();
     state.messages[askTime] = Message(role: 'user', content: ask);
+    state.saveMessages();
     update();
     toBottom();
 
@@ -194,6 +379,8 @@ class AssistantLogic extends GetxController {
       } else {
         _parseOpenAiStream(content, replyTime);
       }
+    }, onDone: () {
+      state.saveMessages();
     });
   }
 

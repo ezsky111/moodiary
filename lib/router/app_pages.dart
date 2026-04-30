@@ -7,8 +7,6 @@ import 'package:moodiary/components/window_buttons/window_buttons.dart';
 import 'package:moodiary/pages/about/about_logic.dart';
 import 'package:moodiary/pages/about/about_view.dart';
 import 'package:moodiary/pages/agreement/agreement_view.dart';
-import 'package:moodiary/pages/analyse/analyse_logic.dart';
-import 'package:moodiary/pages/analyse/analyse_view.dart';
 import 'package:moodiary/pages/assistant/assistant_logic.dart';
 import 'package:moodiary/pages/assistant/assistant_view.dart';
 import 'package:moodiary/pages/assistant/diary_analysis/diary_analysis_logic.dart';
@@ -68,11 +66,11 @@ class AppPages {
       page: () => const HomePage(),
       binds: [Bind.lazyPut(fenix: true, () => HomeLogic())],
     ),
-    //分析
+    //AI 日记分析
     MoodiaryGetPage(
       name: AppRoutes.analysePage,
-      page: () => const AnalysePage(),
-      binds: [Bind.lazyPut(fenix: true, () => AnalyseLogic())],
+      page: () => const DiaryAnalysisPage(),
+      binds: [Bind.lazyPut(fenix: true, () => DiaryAnalysisLogic())],
     ),
     //日记页路由
     MoodiaryGetPage(name: AppRoutes.diaryPage, page: () => DiaryDetailsPage()),
@@ -170,11 +168,6 @@ class AppPages {
       name: AppRoutes.assistantPage,
       page: () => const AssistantPage(),
       binds: [Bind.lazyPut(fenix: true, () => AssistantLogic())],
-    ),
-    MoodiaryGetPage(
-      name: AppRoutes.analysisPage,
-      page: () => const DiaryAnalysisPage(),
-      binds: [Bind.lazyPut(fenix: true, () => DiaryAnalysisLogic())],
     ),
     MoodiaryGetPage(
       name: AppRoutes.sponsorPage,

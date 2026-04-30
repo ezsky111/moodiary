@@ -14,6 +14,8 @@
 </div>
 
 > 本项目基于 [ZhuJHua/moodiary](https://github.com/ZhuJHua/moodiary) 进行维护和修复。原作者项目已停止更新很长时间，本 fork 版本主要修复了使用中发现的 bug，并实现了一些新功能。
+>
+> 注：本仓库基于上游 fork 的 tag 版本构建。原项目的完整粒度提交历史可在上游 `develop` 分支找到，因上游打 tag 时进行了 squash 导致的部分历史粒度丢失，敬请谅解。
 
 ## ✨ 功能特性
 

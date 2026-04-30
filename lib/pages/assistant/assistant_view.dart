@@ -56,11 +56,13 @@ class AssistantPage extends StatelessWidget {
                 radius: 8,
                 backgroundColor: context.theme.colorScheme
                     .primaryContainer,
-                child: Text(
-                  DateFormat('Md').format(diary.time),
-                  style: context.textTheme.labelSmall?.copyWith(
-                    fontSize: 8,
-                    color: context.theme.colorScheme.onPrimaryContainer,
+                child: FittedBox(
+                  child: Text(
+                    DateFormat('M/d').format(diary.time),
+                    style: context.textTheme.labelSmall?.copyWith(
+                      fontSize: 8,
+                      color: context.theme.colorScheme.onPrimaryContainer,
+                    ),
                   ),
                 ),
               ),

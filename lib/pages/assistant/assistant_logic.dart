@@ -54,7 +54,7 @@ class AssistantLogic extends GetxController {
     // 异步构建日记记忆上下文
     _refreshMemoryContext();
     // 加载已保存的 AI 分析总结
-    state.diaryAnalysis = DiaryAnalysis.fromPrefs();
+    state.diaryAnalysis = DiaryAnalysis.getLatest();
     // 加载持久化的聊天历史
     state.loadMessages();
     // 加载持久化的日记上下文
@@ -162,7 +162,7 @@ class AssistantLogic extends GetxController {
     state.messages = {};
     state.diaryContext = null;
     state.selectedDiaries = [];
-    state.diaryAnalysis = DiaryAnalysis.fromPrefs();
+    state.diaryAnalysis = DiaryAnalysis.getLatest();
     state.saveMessages();
     state.saveDiaryContext();
     _refreshMemoryContext();
@@ -231,7 +231,7 @@ class AssistantLogic extends GetxController {
                                 AssistantState.maxSelectedDiaries &&
                             !isSelected;
                         final dateStr =
-                            DateFormat('MM/dd').format(diary.time);
+                            DateFormat('M/d').format(diary.time);
 
                         return CheckboxListTile(
                           value: isSelected,
@@ -254,11 +254,13 @@ class AssistantLogic extends GetxController {
                             radius: 16,
                             backgroundColor:
                                 context.theme.colorScheme.primaryContainer,
-                            child: Text(
-                              dateStr,
-                              style: context.textTheme.labelSmall?.copyWith(
-                                color: context
-                                    .theme.colorScheme.onPrimaryContainer,
+                            child: FittedBox(
+                              child: Text(
+                                dateStr,
+                                style: context.textTheme.labelSmall?.copyWith(
+                                  color: context
+                                      .theme.colorScheme.onPrimaryContainer,
+                                ),
                               ),
                             ),
                           ),

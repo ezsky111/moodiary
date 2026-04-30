@@ -8,6 +8,7 @@ import 'package:moodiary/common/values/diary_type.dart';
 import 'package:moodiary/components/base/image.dart';
 import 'package:moodiary/components/base/text.dart';
 import 'package:moodiary/components/diary_card/basic_card_logic.dart';
+import 'package:moodiary/persistence/isar.dart';
 import 'package:moodiary/utils/file_util.dart';
 
 class GirdDiaryCardComponent extends StatelessWidget with BasicCardLogic {
@@ -70,17 +71,45 @@ class GirdDiaryCardComponent extends StatelessWidget with BasicCardLogic {
                       Row(
                         spacing: 4.0,
                         children: [
+                          if (diary.categoryId != null) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context
+                                    .theme.colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                IsarUtil.getCategoryName(
+                                  diary.categoryId!,
+                                )?.categoryName ?? '',
+                                style: context.textTheme.labelSmall
+                                    ?.copyWith(
+                                  color: context.theme.colorScheme
+                                      .onPrimaryContainer,
+                                  fontSize: 10,
+                                  height: 1.2,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
                           Text(
                             DateFormat.yMd().add_Hms().format(diary.time),
                             style: context.textTheme.labelSmall?.copyWith(
-                              color: context.theme.colorScheme.onSurfaceVariant,
+                              color:
+                                  context.theme.colorScheme.onSurfaceVariant,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                           FaIcon(
                             DiaryType.fromValue(diary.type).icon,
                             size: 10,
-                            color: context.theme.colorScheme.onSurfaceVariant,
+                            color:
+                                context.theme.colorScheme.onSurfaceVariant,
                           ),
                         ],
                       ),

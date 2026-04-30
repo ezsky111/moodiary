@@ -945,6 +945,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiPolishMood => 'AI 设置心情';
 
   @override
+  String get aiPolishLayout => 'AI 排版';
+
+  @override
   String get aiPolishProcessing => 'AI 润色中...';
 
   @override

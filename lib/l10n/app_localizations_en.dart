@@ -979,6 +979,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPolishMood => 'AI Set Mood';
 
   @override
+  String get aiPolishLayout => 'AI Layout';
+
+  @override
   String get aiPolishProcessing => 'AI Polishing...';
 
   @override

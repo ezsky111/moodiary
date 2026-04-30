@@ -7,6 +7,7 @@ import 'package:moodiary/components/base/button.dart';
 import 'package:moodiary/components/diary_render/diary_render.dart';
 import 'package:moodiary/components/mood_icon/mood_icon_view.dart';
 import 'package:moodiary/l10n/l10n.dart';
+import 'package:moodiary/persistence/isar.dart';
 import 'package:moodiary/persistence/pref.dart';
 
 import 'diary_details_logic.dart';
@@ -107,6 +108,18 @@ class DiaryDetailsPage extends StatelessWidget {
             const Icon(Icons.tag_outlined),
           );
         }),
+        if (diary.categoryId != null) ...[
+          buildAChip(
+            context: context,
+            Text(
+              IsarUtil.getCategoryName(diary.categoryId!)?.categoryName ?? '',
+              style: context.textTheme.labelLarge!.copyWith(
+                color: context.theme.colorScheme.onSurface,
+              ),
+            ),
+            const Icon(Icons.folder_outlined),
+          ),
+        ],
       ],
     );
   }
@@ -321,11 +334,12 @@ class DiaryDetailsPage extends StatelessWidget {
                       ],
                     ),
                     SliverPadding(
-                      padding: const EdgeInsets.all(4.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       sliver: SliverList.list(
                         children: [
+                          // Metadata chips
                           Padding(
-                            padding: const EdgeInsets.all(4.0),
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: buildChipList(
@@ -334,13 +348,32 @@ class DiaryDetailsPage extends StatelessWidget {
                               ),
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          // Title
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Text(
+                              state.diary.title,
+                              style: context.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Content
                           Card.filled(
                             color: customColorScheme.surfaceContainerLow,
+                            margin: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                             child: DiaryRender(
                               diary: state.diary,
                               customColorScheme: customColorScheme,
                             ),
                           ),
+                          const SizedBox(height: 32),
                         ],
                       ),
                     ),

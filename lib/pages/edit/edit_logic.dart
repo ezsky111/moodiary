@@ -191,6 +191,8 @@ class EditLogic extends GetxController {
             ),
             selection: const TextSelection.collapsed(offset: 0),
           );
+          // Ensure document has a trailing paragraph for valid cursor placement
+          _ensureTrailingNewline();
         case DiaryType.markdown:
           String replacedContent;
           try {
@@ -274,6 +276,19 @@ class EditLogic extends GetxController {
         0;
   }
 
+  void _ensureTrailingNewline() {
+    final controller = quillController;
+    if (controller == null) return;
+    try {
+      final deltaJson = controller.document.toDelta().toJson();
+      if (deltaJson.isEmpty) return;
+      final lastInsert = deltaJson.last['insert'];
+      if (lastInsert is! String || !lastInsert.endsWith('\n')) {
+        controller.replaceText(controller.document.length, 0, '\n', null);
+      }
+    } catch (_) {}
+  }
+
   // 插入换行时自动首行缩进
   void insertNewLine() {
     if (quillController == null) return;
@@ -294,7 +309,15 @@ class EditLogic extends GetxController {
     final index = quillController!.selection.baseOffset;
     final length = quillController!.selection.extentOffset - index;
     quillController?.replaceText(index, length, imageBlock, null);
-    quillController?.moveCursorToPosition(index + 1);
+    final afterEmbed = index + 1;
+    // Ensure there's a newline after the embed so the cursor lands in a text
+    // paragraph, not at an embed boundary where typing would be ignored
+    if (afterEmbed >= quillController!.document.length) {
+      quillController?.replaceText(afterEmbed, 0, '\n', null);
+      quillController?.moveCursorToPosition(afterEmbed + 1);
+    } else {
+      quillController?.moveCursorToPosition(afterEmbed);
+    }
   }
 
   void insertNewVideo({required String videoPath}) {
@@ -303,8 +326,15 @@ class EditLogic extends GetxController {
     final index = quillController!.selection.baseOffset;
     final length = quillController!.selection.extentOffset - index;
     quillController?.replaceText(index, length, videoBlock, null);
-    //插入一个换行
-    quillController?.moveCursorToPosition(index + 1);
+    final afterEmbed = index + 1;
+    // Ensure there's a newline after the embed so the cursor lands in a text
+    // paragraph, not at an embed boundary where typing would be ignored
+    if (afterEmbed >= quillController!.document.length) {
+      quillController?.replaceText(afterEmbed, 0, '\n', null);
+      quillController?.moveCursorToPosition(afterEmbed + 1);
+    } else {
+      quillController?.moveCursorToPosition(afterEmbed);
+    }
   }
 
   Future<void> addNewImage(XFile xFile, {bool isMarkdown = false}) async {
@@ -831,9 +861,16 @@ class EditLogic extends GetxController {
     final audioBlock = AudioBlockEmbed.fromName(name);
     final index = quillController!.selection.baseOffset;
     final length = quillController!.selection.extentOffset - index;
-    // 插入音频 Embed
     quillController?.replaceText(index, length, audioBlock, null);
-    quillController?.moveCursorToPosition(index + 1);
+    final afterEmbed = index + 1;
+    // Ensure there's a newline after the embed so the cursor lands in a text
+    // paragraph, not at an embed boundary where typing would be ignored
+    if (afterEmbed >= quillController!.document.length) {
+      quillController?.replaceText(afterEmbed, 0, '\n', null);
+      quillController?.moveCursorToPosition(afterEmbed + 1);
+    } else {
+      quillController?.moveCursorToPosition(afterEmbed);
+    }
     update(['Audio']);
   }
 

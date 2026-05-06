@@ -832,6 +832,10 @@ class EditPage extends StatelessWidget {
               context,
               customColorScheme: context.theme.colorScheme,
             ),
+            onTapDown: (details, getPosition) {
+              logic.contentFocusNode.requestFocus();
+              return false;
+            },
             embedBuilders: [
               if (state.type == DiaryType.richText) ...[
                 ImageEmbedBuilder(isEdit: true),
@@ -848,7 +852,7 @@ class EditPage extends StatelessWidget {
     Widget buildWriting() {
       return Column(
         children: [
-          Flexible(
+          Expanded(
             child: Stack(
               children: [
                 buildContent(),

@@ -25,29 +25,34 @@ class MarkdownImageEmbed extends StatelessWidget {
     final imagePath =
         isEdit ? imageName : FileUtil.getRealPath('image', imageName);
     final heroPrefix = const Uuid().v4();
-    final image = MoodiaryImage(
-      imagePath: imagePath,
-      size: 300,
-      heroTag: '${heroPrefix}0',
-      borderRadius: AppBorderRadius.mediumBorderRadius,
-      showBorder: true,
-      padding: const EdgeInsets.all(8.0),
-      onTap: () {
-        if (!isEdit) {
-          final paths = allImageNames.isEmpty
-              ? [imagePath]
-              : allImageNames
-                  .map((name) => FileUtil.getRealPath('image', name))
-                  .toList();
-          final index = allImageNames.isEmpty
-              ? 0
-              : allImageNames
-                  .indexOf(imageName)
-                  .clamp(0, allImageNames.length - 1);
-          showImageView(context, paths, index, heroTagPrefix: heroPrefix);
-        }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        return MoodiaryImage(
+          imagePath: imagePath,
+          size: 300,
+          maxWidth: maxWidth > 0 && maxWidth.isFinite ? maxWidth : null,
+          heroTag: '${heroPrefix}0',
+          borderRadius: AppBorderRadius.mediumBorderRadius,
+          showBorder: true,
+          padding: const EdgeInsets.all(8.0),
+          onTap: () {
+            if (!isEdit) {
+              final paths = allImageNames.isEmpty
+                  ? [imagePath]
+                  : allImageNames
+                      .map((name) => FileUtil.getRealPath('image', name))
+                      .toList();
+              final index = allImageNames.isEmpty
+                  ? 0
+                  : allImageNames
+                      .indexOf(imageName)
+                      .clamp(0, allImageNames.length - 1);
+              showImageView(context, paths, index, heroTagPrefix: heroPrefix);
+            }
+          },
+        );
       },
     );
-    return Center(child: image);
   }
 }

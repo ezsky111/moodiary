@@ -38,34 +38,39 @@ class ImageEmbedBuilder extends EmbedBuilder {
         isEdit
             ? imageEmbed.name
             : FileUtil.getRealPath('image', imageEmbed.name);
-    final image = MoodiaryImage(
-      imagePath: imagePath,
-      size: 300,
-      heroTag: '${imageEmbed.name}0',
-      borderRadius: AppBorderRadius.mediumBorderRadius,
-      showBorder: true,
-      padding: const EdgeInsets.all(8.0),
-      onTap: () {
-        if (!isEdit) {
-          final paths = allImageNames.isEmpty
-              ? [imagePath]
-              : allImageNames
-                  .map((name) => FileUtil.getRealPath('image', name))
-                  .toList();
-          final index = allImageNames.isEmpty
-              ? 0
-              : allImageNames
-                  .indexOf(imageEmbed.name)
-                  .clamp(0, allImageNames.length - 1);
-          showImageView(
-            context,
-            paths,
-            index,
-            heroTagPrefix: imageEmbed.name,
-          );
-        }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        return MoodiaryImage(
+          imagePath: imagePath,
+          size: 300,
+          maxWidth: maxWidth > 0 && maxWidth.isFinite ? maxWidth : null,
+          heroTag: '${imageEmbed.name}0',
+          borderRadius: AppBorderRadius.mediumBorderRadius,
+          showBorder: true,
+          padding: const EdgeInsets.all(8.0),
+          onTap: () {
+            if (!isEdit) {
+              final paths = allImageNames.isEmpty
+                  ? [imagePath]
+                  : allImageNames
+                      .map((name) => FileUtil.getRealPath('image', name))
+                      .toList();
+              final index = allImageNames.isEmpty
+                  ? 0
+                  : allImageNames
+                      .indexOf(imageEmbed.name)
+                      .clamp(0, allImageNames.length - 1);
+              showImageView(
+                context,
+                paths,
+                index,
+                heroTagPrefix: imageEmbed.name,
+              );
+            }
+          },
+        );
       },
     );
-    return Center(child: image);
   }
 }

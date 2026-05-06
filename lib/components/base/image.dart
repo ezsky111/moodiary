@@ -94,6 +94,7 @@ class _ImageState {
 class MoodiaryImage extends StatefulWidget {
   final String imagePath;
   final int size;
+  final double? maxWidth;
   final BoxFit? fit;
   final VoidCallback? onTap;
   final String? heroTag;
@@ -105,6 +106,7 @@ class MoodiaryImage extends StatefulWidget {
     super.key,
     required this.imagePath,
     required this.size,
+    this.maxWidth,
     this.fit,
     this.onTap,
     this.heroTag,
@@ -153,22 +155,34 @@ class _MoodiaryImageState extends State<MoodiaryImage> {
         imagePath: widget.imagePath,
       );
 
-      final imageSize = widget.size;
-      final width =
-          imageAspect < 1.0 ? imageSize : (imageSize * imageAspect).ceil();
-      final height =
-          imageAspect >= 1.0 ? imageSize : (imageSize / imageAspect).ceil();
+      double displayWidth;
+      double displayHeight;
+
+      if (widget.maxWidth != null && widget.maxWidth!.isFinite) {
+        final margin = widget.padding ?? EdgeInsets.zero;
+        final innerWidth = widget.maxWidth! - margin.horizontal;
+        displayWidth = innerWidth;
+        displayHeight = innerWidth / imageAspect;
+      } else {
+        final imageSize = widget.size;
+        displayWidth =
+            (imageAspect < 1.0 ? imageSize : (imageSize * imageAspect))
+                .toDouble();
+        displayHeight =
+            (imageAspect >= 1.0 ? imageSize : (imageSize / imageAspect))
+                .toDouble();
+      }
 
       final path = await ImageCacheUtil().getLocalImagePathWithCache(
         imagePath: widget.imagePath,
-        imageWidth: width * 2,
-        imageHeight: height * 2,
+        imageWidth: (displayWidth * 2).ceil(),
+        imageHeight: (displayHeight * 2).ceil(),
         imageAspectRatio: imageAspect,
       );
 
       _imageState = _ImageState(
-        width: width,
-        height: height,
+        width: displayWidth.ceil(),
+        height: displayHeight.ceil(),
         path: path,
         aspectRatio: imageAspect,
       );
@@ -210,7 +224,19 @@ class _MoodiaryImageState extends State<MoodiaryImage> {
             ? _shrinkBorderRadius(outerRadius, borderWidth)
             : outerRadius;
 
+    final EdgeInsets margin = widget.padding ?? EdgeInsets.zero;
+    final double placeholderWidth;
+    final double placeholderHeight;
+    if (widget.maxWidth != null && widget.maxWidth!.isFinite) {
+      placeholderWidth = widget.maxWidth! - margin.horizontal;
+      placeholderHeight = placeholderWidth / 1.5;
+    } else {
+      placeholderWidth = widget.size.toDouble();
+      placeholderHeight = widget.size.toDouble();
+    }
+
     return Container(
+      width: widget.maxWidth,
       decoration: BoxDecoration(
         borderRadius: outerRadius,
         border:
@@ -223,7 +249,7 @@ class _MoodiaryImageState extends State<MoodiaryImage> {
                 )
                 : null,
       ),
-      margin: widget.padding,
+      margin: margin,
       child: ClipRRect(
         borderRadius: innerRadius,
         child: AnimatedSwitcher(
@@ -233,9 +259,17 @@ class _MoodiaryImageState extends State<MoodiaryImage> {
           child: Obx(() {
             switch (_loadState.value) {
               case _ImageLoadState.loading:
-                return const _LoadingPlaceholder(key: ValueKey('loading'));
+                return SizedBox(
+                  width: placeholderWidth,
+                  height: placeholderHeight,
+                  child: const _LoadingPlaceholder(key: ValueKey('loading')),
+                );
               case _ImageLoadState.error:
-                return const _ErrorPlaceholder(key: ValueKey('error'));
+                return SizedBox(
+                  width: placeholderWidth,
+                  height: placeholderHeight,
+                  child: const _ErrorPlaceholder(key: ValueKey('error')),
+                );
               case _ImageLoadState.success:
                 final imagePath = _imageState.path;
                 final width = _imageState.width;
@@ -266,7 +300,7 @@ class _MoodiaryImageState extends State<MoodiaryImage> {
                         placeholder: MemoryImage(kTransparentImage),
                         fadeInDuration: Durations.short2,
                         fadeOutDuration: Durations.short1,
-                        fit: widget.fit ?? BoxFit.cover,
+                        fit: widget.fit ?? (widget.maxWidth != null ? BoxFit.contain : BoxFit.cover),
                         width: width.toDouble(),
                         height: height.toDouble(),
                         imageErrorBuilder: (_, __, ___) {
